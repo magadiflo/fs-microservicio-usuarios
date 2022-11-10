@@ -40,9 +40,15 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Dependencias agregadas -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.magadiflo.commons</groupId>
+			<artifactId>fs-microservicio-commons</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
