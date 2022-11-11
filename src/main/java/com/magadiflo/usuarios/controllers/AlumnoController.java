@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.magadiflo.commons.alumnos.models.entity.Alumno;
 import com.magadiflo.commons.controllers.CommonController;
-import com.magadiflo.usuarios.models.entity.Alumno;
+
 import com.magadiflo.usuarios.services.IAlumnoService;
 
 @RestController
