@@ -2,8 +2,11 @@ package com.magadiflo.usuarios.controllers;
 
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,7 +26,12 @@ public class AlumnoController extends CommonController<Alumno, IAlumnoService> {
 	}
 
 	@PutMapping(path = "/{id}")
-	public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody Alumno alumno) {
+	public ResponseEntity<?> editar(@PathVariable Long id, @Valid @RequestBody Alumno alumno, BindingResult result) {
+
+		if (result.hasErrors()) {
+			return this.validar(result);
+		}
+
 		Optional<Alumno> opAlumno = this.service.findById(id);
 		if (opAlumno.isEmpty()) {
 			return ResponseEntity.notFound().build();
