@@ -9,7 +9,7 @@ import com.magadiflo.commons.alumnos.models.entity.Alumno;
 
 public interface IAlumnoRepository extends PagingAndSortingRepository<Alumno, Long> {
 
-	@Query("SELECT a FROM Alumno AS a WHERE a.nombre LIKE %?1% OR a.apellido LIKE %?1%")
+	@Query("SELECT a FROM Alumno AS a WHERE UPPER(a.nombre) LIKE UPPER(CONCAT('%', ?1, '%')) OR UPPER(a.apellido) LIKE UPPER(CONCAT('%', ?1, '%'))")
 	List<Alumno> encontrarPorNombreOrApellido(String termino);
 
 }
