@@ -7,4 +7,6 @@ import com.magadiflo.commons.services.ICommonService;
 
 public interface IAlumnoService extends ICommonService<Alumno> {
 	List<Alumno> encontrarPorNombreOrApellido(String termino);
+
+	Iterable<Alumno> findAllById(Iterable<Long> ids);
 }

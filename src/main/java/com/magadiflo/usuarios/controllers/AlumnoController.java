@@ -1,6 +1,7 @@
 package com.magadiflo.usuarios.controllers;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -56,43 +57,45 @@ public class AlumnoController extends CommonController<Alumno, IAlumnoService> {
 	public ResponseEntity<?> filtrar(@PathVariable String termino) {
 		return ResponseEntity.ok(this.service.encontrarPorNombreOrApellido(termino));
 	}
-	
+
 	/**
-	 * En el CommonsController, el método crear tiene anotado un 
-	 * @throws IOException 
-	 * @RequestBody porque nos envían un JSON con los datos del Entity,
-	 * en este caso del Alumno y ese sería el tipo de request, el
-	 * tipo de contenido: un JSON.
+	 * En el CommonsController, el método crear tiene anotado un
 	 * 
-	 * Peron en este método crearConFoto(...) nos envían parámetros, y 
-	 * entre los parámetros está la foto, por lo tanto el @RequestBody no va,
-	 * no se incluye en el método, es decir sería así: 
-	 * ....crearConFoto(@Valid Alumno entity....)
-	 * Lo que sí debemos agregar es un MultipartFile con la imagen.
+	 * @throws IOException
+	 * @RequestBody porque nos envían un JSON con los datos del Entity, en este caso
+	 *              del Alumno y ese sería el tipo de request, el tipo de contenido:
+	 *              un JSON.
 	 * 
-	 * Este método crearConFoto, es para recibir la foto y asignarla al
-	 * alumno y en seguida pasarlo a la clase padre para que haga el 
-	 * respectivo guardado, es decir estamos reutilizando el código 
-	 * de guardar
+	 *              Peron en este método crearConFoto(...) nos envían parámetros, y
+	 *              entre los parámetros está la foto, por lo tanto el @RequestBody
+	 *              no va, no se incluye en el método, es decir sería así:
+	 *              ....crearConFoto(@Valid Alumno entity....) Lo que sí debemos
+	 *              agregar es un MultipartFile con la imagen.
+	 * 
+	 *              Este método crearConFoto, es para recibir la foto y asignarla al
+	 *              alumno y en seguida pasarlo a la clase padre para que haga el
+	 *              respectivo guardado, es decir estamos reutilizando el código de
+	 *              guardar
 	 */
 
 	@PostMapping(path = "/crear-con-foto")
-	public ResponseEntity<?> crearConFoto(@Valid Alumno alumno, BindingResult result, 
+	public ResponseEntity<?> crearConFoto(@Valid Alumno alumno, BindingResult result,
 			@RequestParam MultipartFile archivo) throws IOException {
-		if(!archivo.isEmpty()) {
+		if (!archivo.isEmpty()) {
 			alumno.setFoto(archivo.getBytes());
 		}
 		return super.crear(alumno, result);
 	}
-	
-	// Aquí tampoco va el @RequestBody, cuando estamos recibiendo un archivo 
-	// (imagen, foto, etc.) el tipo de request no es un JSON, 
+
+	// Aquí tampoco va el @RequestBody, cuando estamos recibiendo un archivo
+	// (imagen, foto, etc.) el tipo de request no es un JSON,
 	// es otro tipo de request, es un Multipart Form Data.
-	// De forma automática el Alumno se poblará con los campos: nombre, apellido, email
+	// De forma automática el Alumno se poblará con los campos: nombre, apellido,
+	// email
 	// y la imagen se poblará en el MultipartFile archivo
 	@PutMapping(path = "/editar-con-foto/{id}")
-	public ResponseEntity<?> editarConFoto(@PathVariable Long id, 
-			@Valid Alumno alumno, BindingResult result, @RequestParam MultipartFile archivo) throws IOException {
+	public ResponseEntity<?> editarConFoto(@PathVariable Long id, @Valid Alumno alumno, BindingResult result,
+			@RequestParam MultipartFile archivo) throws IOException {
 
 		if (result.hasErrors()) {
 			return this.validar(result);
@@ -107,26 +110,34 @@ public class AlumnoController extends CommonController<Alumno, IAlumnoService> {
 		alumnoBD.setNombre(alumno.getNombre());
 		alumnoBD.setApellido(alumno.getApellido());
 		alumnoBD.setEmail(alumno.getEmail());
-		
-		if(!archivo.isEmpty()) {
+
+		if (!archivo.isEmpty()) {
 			alumnoBD.setFoto(archivo.getBytes());
 		}
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(alumnoBD));
 	}
-	
+
 	@GetMapping(path = "/uploads/img/{id}")
 	public ResponseEntity<?> verFoto(@PathVariable Long id) {
 		Optional<Alumno> opAlumno = this.service.findById(id);
 		if (opAlumno.isEmpty() || opAlumno.get().getFoto() == null) {
 			return ResponseEntity.notFound().build();
 		}
-		
+
 		Resource imagen = new ByteArrayResource(opAlumno.get().getFoto());
-		
+
 		return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imagen);
 	}
-	
-	
+
+	/**
+	 * En el parámetro es mejor usar List, ya que si usamos el Iterable produce
+	 * error con Feign, quien será usado desde el microservicio cursos para
+	 * comunicarse con este endpoint
+	 */
+	@GetMapping(path = "/alumnos-por-curso")
+	public ResponseEntity<?> obtenerAlumnosPorCurso(@RequestParam List<Long> ids) {
+		return ResponseEntity.ok(this.service.findAllById(ids));
+	}
 
 }
